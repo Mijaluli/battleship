@@ -84,7 +84,7 @@ export default function ShipPlacement({ gameId, humanBoard, shipsToPlace, onShip
           >Vertical</button>
         </div>
       </div>
-      {currentShip && <p>Placing: <strong>{currentShip.name}</strong> (size {currentShip.size})</p>}
+      {currentShip && <p aria-label="placing-hint">Click the board to place your next ship ({currentShip.size} cells)</p>}
       <div
         onMouseLeave={() => setHoverCoord(null)}
       >
