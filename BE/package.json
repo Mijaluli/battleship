@@ -1,0 +1,27 @@
+{
+  "name": "language-validator-api",
+  "version": "1.0.0",
+  "description": "HTTP API that validates words against pluggable language rules",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "mocha --require tsx/cjs 'test/**/*.test.ts'"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/express": "^4.17.21",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.14.0",
+    "@types/supertest": "^7.2.0",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5",
+    "supertest": "^7.2.2",
+    "tsx": "^4.15.1",
+    "typescript": "^5.4.5"
+  }
+}
