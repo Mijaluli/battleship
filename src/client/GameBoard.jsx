@@ -1,3 +1,4 @@
+import React from 'react';
 import Cell from './Cell';
 
 const COLUMNS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
@@ -14,9 +15,9 @@ export default function GameBoard({ cells, mode, onCellClick, previewCells = [],
           <div key={col} className="board-header-cell">{col}</div>
         ))}
         {ROWS.map(row => (
-          <>
+          <React.Fragment key={row}>
             {/* Row header */}
-            <div key={`row-${row}`} className="board-header-cell">{row}</div>
+            <div className="board-header-cell">{row}</div>
             {/* Cells */}
             {COLUMNS.map(col => {
               const coord = `${col}${row}`;
@@ -39,7 +40,7 @@ export default function GameBoard({ cells, mode, onCellClick, previewCells = [],
                 />
               );
             })}
-          </>
+          </React.Fragment>
         ))}
       </div>
     </div>
