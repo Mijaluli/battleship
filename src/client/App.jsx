@@ -4,14 +4,6 @@ import GameBoard from './GameBoard';
 import StatusBar from './StatusBar';
 import ScoreBoard from './ScoreBoard';
 
-const FLEET = [
-  { name: 'Carrier', size: 5 },
-  { name: 'Battleship', size: 4 },
-  { name: 'Destroyer', size: 3 },
-  { name: 'Submarine', size: 3 },
-  { name: 'Patrol Boat', size: 2 },
-];
-
 export default function App() {
   const [game, setGame] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,7 +19,7 @@ export default function App() {
     try {
       const res = await fetch('/api/games', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       const data = await res.json();
-      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastHumanShot: null, lastComputerShot: null, currentTurn: 'human', winner: null });
+      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, fleet: data.shipsToPlace, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: 'human', winner: null });
     } catch (e) {
       setError('Failed to connect to server.');
     } finally {
@@ -42,7 +34,7 @@ export default function App() {
     try {
       const res = await fetch(`/api/games/${game.gameId}/reset`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       const data = await res.json();
-      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastHumanShot: null, lastComputerShot: null, currentTurn: 'human', winner: null });
+      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, fleet: data.shipsToPlace, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: 'human', winner: null });
     } catch (e) {
       setError('Failed to reset game.');
     } finally {
@@ -77,8 +69,7 @@ export default function App() {
         humanBoard: data.humanBoard,
         computerBoard: data.computerBoard,
         sunkShips: data.sunkShips,
-        lastHumanShot: data.humanShot ? { shooter: 'human', coordinate: data.humanShot.coordinate, outcome: data.humanShot.outcome, shipName: data.humanShot.shipName } : prev.lastHumanShot,
-        lastComputerShot: data.computerShot ? { shooter: 'computer', coordinate: data.computerShot.coordinate, outcome: data.computerShot.outcome, shipName: data.computerShot.shipName } : null,
+        lastShotResult: data.humanShot ? { shooter: 'human', coordinate: data.humanShot.coordinate, outcome: data.humanShot.outcome, shipName: data.humanShot.shipName } : prev.lastShotResult,
         currentTurn: data.status === 'in_progress' ? 'human' : null,
       }));
     } catch (e) {
@@ -100,8 +91,7 @@ export default function App() {
       <StatusBar
         status={game.status}
         currentTurn={game.currentTurn}
-        lastHumanShot={game.lastHumanShot}
-        lastComputerShot={game.lastComputerShot}
+        lastShotResult={game.lastShotResult}
         onReset={resetGame}
       />
       {game.status === 'placement' && (
@@ -114,7 +104,7 @@ export default function App() {
       )}
       {inBattle && (
         <div className="battle-view">
-          <ScoreBoard sunkShips={game.sunkShips} fleet={FLEET} />
+          <ScoreBoard sunkShips={game.sunkShips} fleet={game.fleet} />
           <div className="boards-row">
             <div className="board-section">
               <h3>Your Board</h3>

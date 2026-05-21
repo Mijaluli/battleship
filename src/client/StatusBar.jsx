@@ -7,7 +7,7 @@ function formatShotMsg(shot) {
   return `${who} missed at ${coordinate}.`;
 }
 
-export default function StatusBar({ status, currentTurn, lastHumanShot, lastComputerShot, onReset }) {
+export default function StatusBar({ status, currentTurn, lastShotResult, onReset }) {
   let message = '';
 
   if (status === 'placement') {
@@ -24,16 +24,14 @@ export default function StatusBar({ status, currentTurn, lastHumanShot, lastComp
     }
   }
 
-  const humanMsg = formatShotMsg(lastHumanShot);
-  const computerMsg = formatShotMsg(lastComputerShot);
+  const shotMsg = formatShotMsg(lastShotResult);
 
   const isOver = status === 'player_won' || status === 'computer_won';
 
   return (
     <div className={`status-bar ${isOver ? 'game-over' : ''}`}>
       <span className="status-message">{message}</span>
-      {humanMsg && <span className="shot-result">{humanMsg}</span>}
-      {computerMsg && <span className="shot-result">{computerMsg}</span>}
+      {shotMsg && <span className="shot-result">{shotMsg}</span>}
       {isOver && (
         <button className="reset-btn" onClick={onReset}>Play Again</button>
       )}
