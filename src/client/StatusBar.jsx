@@ -1,4 +1,13 @@
-export default function StatusBar({ status, currentTurn, lastShotResult, onReset }) {
+function formatShotMsg(shot) {
+  if (!shot) return '';
+  const { shooter, coordinate, outcome, shipName } = shot;
+  const who = shooter === 'human' ? 'You' : 'Computer';
+  if (outcome === 'sunk') return `${who} sunk ${shipName} at ${coordinate}!`;
+  if (outcome === 'hit') return `${who} hit at ${coordinate}!`;
+  return `${who} missed at ${coordinate}.`;
+}
+
+export default function StatusBar({ status, currentTurn, lastHumanShot, lastComputerShot, onReset }) {
   let message = '';
 
   if (status === 'placement') {
@@ -15,21 +24,16 @@ export default function StatusBar({ status, currentTurn, lastShotResult, onReset
     }
   }
 
-  let shotMsg = '';
-  if (lastShotResult) {
-    const { shooter, coordinate, outcome, shipName } = lastShotResult;
-    const who = shooter === 'human' ? 'You' : 'Computer';
-    if (outcome === 'sunk') shotMsg = `${who} sunk ${shipName} at ${coordinate}!`;
-    else if (outcome === 'hit') shotMsg = `${who} hit at ${coordinate}!`;
-    else shotMsg = `${who} missed at ${coordinate}.`;
-  }
+  const humanMsg = formatShotMsg(lastHumanShot);
+  const computerMsg = formatShotMsg(lastComputerShot);
 
   const isOver = status === 'player_won' || status === 'computer_won';
 
   return (
     <div className={`status-bar ${isOver ? 'game-over' : ''}`}>
       <span className="status-message">{message}</span>
-      {shotMsg && <span className="shot-result">{shotMsg}</span>}
+      {humanMsg && <span className="shot-result">{humanMsg}</span>}
+      {computerMsg && <span className="shot-result">{computerMsg}</span>}
       {isOver && (
         <button className="reset-btn" onClick={onReset}>Play Again</button>
       )}

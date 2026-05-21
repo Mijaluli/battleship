@@ -27,7 +27,7 @@ export default function App() {
     try {
       const res = await fetch('/api/games', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       const data = await res.json();
-      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: 'human', winner: null });
+      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastHumanShot: null, lastComputerShot: null, currentTurn: 'human', winner: null });
     } catch (e) {
       setError('Failed to connect to server.');
     } finally {
@@ -42,7 +42,7 @@ export default function App() {
     try {
       const res = await fetch(`/api/games/${game.gameId}/reset`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       const data = await res.json();
-      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: 'human', winner: null });
+      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastHumanShot: null, lastComputerShot: null, currentTurn: 'human', winner: null });
     } catch (e) {
       setError('Failed to reset game.');
     } finally {
@@ -77,7 +77,8 @@ export default function App() {
         humanBoard: data.humanBoard,
         computerBoard: data.computerBoard,
         sunkShips: data.sunkShips,
-        lastShotResult: data.humanShot ? { shooter: 'human', coordinate: data.humanShot.coordinate, outcome: data.humanShot.outcome, shipName: data.humanShot.shipName } : prev.lastShotResult,
+        lastHumanShot: data.humanShot ? { shooter: 'human', coordinate: data.humanShot.coordinate, outcome: data.humanShot.outcome, shipName: data.humanShot.shipName } : prev.lastHumanShot,
+        lastComputerShot: data.computerShot ? { shooter: 'computer', coordinate: data.computerShot.coordinate, outcome: data.computerShot.outcome, shipName: data.computerShot.shipName } : null,
         currentTurn: data.status === 'in_progress' ? 'human' : null,
       }));
     } catch (e) {
@@ -99,7 +100,8 @@ export default function App() {
       <StatusBar
         status={game.status}
         currentTurn={game.currentTurn}
-        lastShotResult={game.lastShotResult}
+        lastHumanShot={game.lastHumanShot}
+        lastComputerShot={game.lastComputerShot}
         onReset={resetGame}
       />
       {game.status === 'placement' && (
