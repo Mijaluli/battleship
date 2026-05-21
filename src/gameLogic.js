@@ -150,7 +150,7 @@ function fireShot(board, coordinate, shotsRemaining, shotsTaken) {
 }
 
 function checkAllSunk(board) {
-  return board.ships.length === 5 && board.ships.every(s => s.isSunk);
+  return board.ships.length === FLEET.length && board.ships.every(s => s.isSunk);
 }
 
 function computerPickShot(shotsRemaining) {

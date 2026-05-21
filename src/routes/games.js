@@ -70,8 +70,7 @@ router.post('/:gameId/place-ship', (req, res) => {
   const { shipName, startCoordinate, orientation } = req.body || {};
   const result = placeShip(game.humanPlayer.board, shipName, startCoordinate, orientation);
   if (!result.ok) {
-    const statusCode = result.errorCode === 'GAME_NOT_FOUND' ? 404 : 400;
-    return res.status(statusCode).json({ error: { code: result.errorCode, message: result.errorCode } });
+    return res.status(400).json({ error: { code: result.errorCode, message: result.errorCode } });
   }
 
   game.humanPlayer.board = result.board;
