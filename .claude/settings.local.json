@@ -1,8 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git init *)",
-      "Bash(git checkout *)"
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)"
     ]
-  }
+  },
+  "subagentModel": "haiku"
 }
