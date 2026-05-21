@@ -114,13 +114,13 @@ router.post('/:gameId/fire', (req, res) => {
   game.humanPlayer.shotsTaken = humanResult.updatedShotsTaken;
 
   const humanShot = { coordinate, outcome: humanResult.outcome, shipName: humanResult.shipName };
-  game.lastShotResult = { shooter: 'human', ...humanShot };
 
   // Check if human won
   if (checkAllSunk(game.computerPlayer.board)) {
     game.status = 'player_won';
     game.winner = 'human';
     game.currentTurn = null;
+    game.lastShotResult = { human: humanShot, computer: null };
     games.set(game.id, game);
     return res.status(200).json({
       gameId: game.id,
@@ -147,7 +147,7 @@ router.post('/:gameId/fire', (req, res) => {
   game.computerPlayer.shotsTaken = compResult.updatedShotsTaken;
 
   const computerShot = { coordinate: compCoord, outcome: compResult.outcome, shipName: compResult.shipName };
-  game.lastShotResult = { shooter: 'computer', ...computerShot };
+  game.lastShotResult = { human: humanShot, computer: computerShot };
 
   if (checkAllSunk(game.humanPlayer.board)) {
     game.status = 'computer_won';

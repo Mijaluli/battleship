@@ -127,6 +127,9 @@ function fireShot(board, coordinate, shotsRemaining, shotsTaken) {
     const allHit = ship.coordinates.every(c => newCells[c].isHit);
     if (allHit) {
       ship.isSunk = true;
+      for (const c of ship.coordinates) {
+        newCells[c] = { ...newCells[c], isSunk: true };
+      }
       outcome = 'sunk';
       shipName = ship.name;
     } else {
@@ -156,11 +159,13 @@ function computerPickShot(shotsRemaining) {
 }
 
 function sanitizeComputerBoard(board) {
-  const sunkShipIds = new Set(board.ships.filter(s => s.isSunk).flatMap(s => s.coordinates));
+  const sunkCoords = new Set(board.ships.filter(s => s.isSunk).flatMap(s => s.coordinates));
   const newCells = {};
   for (const [coord, cell] of Object.entries(board.cells)) {
-    if (cell.hasShip && !sunkShipIds.has(coord)) {
+    if (cell.hasShip && !sunkCoords.has(coord)) {
       newCells[coord] = { ...cell, hasShip: false, shipId: null };
+    } else if (sunkCoords.has(coord)) {
+      newCells[coord] = { ...cell, hasShip: false, shipId: null, isSunk: true };
     } else {
       newCells[coord] = { ...cell };
     }
