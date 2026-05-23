@@ -4,8 +4,22 @@ const gamesRouter = require('./routes/games');
 
 const app = express();
 
+const LOCAL_ORIGIN = 'http://localhost:5173';
+const NETLIFY_PATTERN = /^https:\/\/[a-z0-9-]+\.netlify\.app$/;
+
+function isAllowedOrigin(origin) {
+  if (!origin) return true;
+  if (origin === LOCAL_ORIGIN) return true;
+  if (process.env.CLIENT_ORIGIN && origin === process.env.CLIENT_ORIGIN) return true;
+  if (NETLIFY_PATTERN.test(origin)) return true;
+  return false;
+}
+
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    if (isAllowedOrigin(origin)) return callback(null, true);
+    callback(new Error(`Not allowed by CORS: ${origin}`));
+  },
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type'],
 }));
