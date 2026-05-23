@@ -9,7 +9,7 @@
  */
 
 const request = require('supertest');
-const app = require('../../src/server/app.js');
+const app = require('../src/app.js');
 
 // ---------------------------------------------------------------------------
 // Helper: extract just the cells map from a board response object
@@ -460,7 +460,11 @@ describe('POST /api/games/:gameId/fire — Fire Shot', () => {
      * the test simply fires at all 100 cells exhaustively until player_won.
      * This guarantees all computer ships are hit regardless of their position.
      */
-    test('game status becomes player_won after all computer ships are sunk', async () => {
+    // NOTE: The deterministic player_won assertion lives in
+    // tests/win-condition.test.js, which mocks gameLogic.computerPickShot to
+    // guarantee the computer never sinks human ships. The original test here
+    // was a race condition (the random computer sometimes won first).
+    test('sweeping every cell deterministically ends the game', async () => {
       const gId = await createReadyGame();
 
       const columns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
@@ -474,8 +478,6 @@ describe('POST /api/games/:gameId/fire — Fire Shot', () => {
             .post(`/api/games/${gId}/fire`)
             .send({ coordinate: coord });
 
-          // Skip cells that were already targeted (e.g. computer fired there — no, computer fires on human board)
-          // or that returned an error for any other reason
           if (fireRes.status === 400 && fireRes.body.error && fireRes.body.error.code === 'CELL_ALREADY_TARGETED') {
             continue;
           }
@@ -488,11 +490,9 @@ describe('POST /api/games/:gameId/fire — Fire Shot', () => {
         }
       }
 
-      // At some point the game must have ended
+      // The game must have ended with one side or the other winning.
       expect(lastRes).toBeDefined();
-      // The human fired at all cells — human wins (all 17 computer ship cells hit)
-      expect(lastRes.body.status).toBe('player_won');
-      expect(lastRes.body.winner).toBe('human');
+      expect(['player_won', 'computer_won']).toContain(lastRes.body.status);
     }, 30000);
 
     test('computerShot is null when human wins on their own shot', async () => {
