@@ -16,6 +16,15 @@ const {
 
 const router = express.Router();
 
+const ERROR_MESSAGES = {
+  OUT_OF_BOUNDS: 'Ship placement is out of bounds',
+  OVERLAP: 'Ship overlaps with another ship',
+  INVALID_COORDINATE: 'Invalid coordinate',
+  INVALID_SHIP_NAME: 'Invalid ship name',
+  INVALID_ORIENTATION: 'Invalid orientation',
+  SHIP_ALREADY_PLACED: 'Ship has already been placed',
+};
+
 function buildSunkShips(humanBoard, computerBoard) {
   return {
     human: humanBoard.ships.filter(s => s.isSunk).map(s => s.name),
@@ -70,7 +79,7 @@ router.post('/:gameId/place-ship', (req, res) => {
   const { shipName, startCoordinate, orientation } = req.body || {};
   const result = placeShip(game.humanPlayer.board, shipName, startCoordinate, orientation);
   if (!result.ok) {
-    return res.status(400).json({ error: { code: result.errorCode, message: result.errorCode } });
+    return res.status(400).json({ error: { code: result.errorCode, message: ERROR_MESSAGES[result.errorCode] || result.errorCode } });
   }
 
   game.humanPlayer.board = result.board;

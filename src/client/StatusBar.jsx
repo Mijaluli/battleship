@@ -19,8 +19,6 @@ export default function StatusBar({ status, currentTurn, lastShotResult, onReset
   } else if (status === 'in_progress') {
     if (currentTurn === 'human') {
       message = 'Your turn — click a cell to fire.';
-    } else {
-      message = "Computer's turn...";
     }
   }
 

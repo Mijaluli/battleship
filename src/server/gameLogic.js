@@ -32,7 +32,7 @@ function parseCoordinate(coord) {
 function createEmptyBoard() {
   const cells = {};
   for (const coord of getAllCoordinates()) {
-    cells[coord] = { coordinate: coord, hasShip: false, isHit: false, isMiss: false, shipId: null };
+    cells[coord] = { coordinate: coord, hasShip: false, isHit: false, isMiss: false, isSunk: false, shipId: null };
   }
   return { cells, ships: [] };
 }

@@ -19,7 +19,7 @@ export default function App() {
     try {
       const res = await fetch('/api/games', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       const data = await res.json();
-      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, fleet: data.shipsToPlace, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: 'human', winner: null });
+      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, fleet: data.shipsToPlace, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: data.currentTurn ?? null, winner: null });
     } catch (e) {
       setError('Failed to connect to server.');
     } finally {
@@ -34,7 +34,7 @@ export default function App() {
     try {
       const res = await fetch(`/api/games/${game.gameId}/reset`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
       const data = await res.json();
-      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, fleet: data.shipsToPlace, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: 'human', winner: null });
+      setGame({ gameId: data.gameId, status: data.status, humanBoard: data.humanBoard, computerBoard: null, fleet: data.shipsToPlace, shipsToPlace: data.shipsToPlace, sunkShips: { human: [], computer: [] }, lastShotResult: null, currentTurn: data.currentTurn ?? null, winner: null });
     } catch (e) {
       setError('Failed to reset game.');
     } finally {
