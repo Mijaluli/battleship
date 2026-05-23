@@ -1,7 +1,7 @@
 # Battleship — SPEC.md
 
 Single source of truth for the Battleship project.
-All agents (QA, Developer, Reviewer) must treat this document as authoritative.
+All agents (Architect, QA, BE Developer, FE Developer, Reviewer, Orchestrator) must treat this document as authoritative.
 
 ---
 
