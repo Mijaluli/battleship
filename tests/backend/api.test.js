@@ -9,7 +9,7 @@
  */
 
 const request = require('supertest');
-const app = require('../src/app.js');
+const app = require('../../src/server/app.js');
 
 // ---------------------------------------------------------------------------
 // Helper: extract just the cells map from a board response object
