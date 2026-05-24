@@ -31,12 +31,12 @@ export default function StatusBar({ status, lastHumanShot, lastComputerShot, onR
         <div className="shot-results">
           {humanLabel && (
             <span className={`shot-result ${shotClass(lastHumanShot?.outcome)}`}>
-              ▶ {humanLabel}
+              {humanLabel}
             </span>
           )}
           {computerLabel && (
             <span className={`shot-result ${shotClass(lastComputerShot?.outcome)}`}>
-              ◀ {computerLabel}
+              {computerLabel}
             </span>
           )}
         </div>
