@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: battleship-api
+    runtime: node
+    rootDir: src/server
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        generateValue: false
+        value: "3001"
+      - key: CLIENT_ORIGIN
+        sync: false   # set manually in Render dashboard to your Netlify URL
