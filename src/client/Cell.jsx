@@ -1,10 +1,13 @@
-export default function Cell({ coordinate, hasShip, isHit, isMiss, isSunk, isPreview, isDisabled, onClick }) {
+export default function Cell({ coordinate, hasShip, isHit, isMiss, isSunk, isPreview, isPreviewValid, isDisabled, onClick, onHover }) {
   const classes = ['cell'];
-  if (isSunk) classes.push('cell-sunk');
-  else if (isHit) classes.push('cell-hit');
-  else if (isMiss) classes.push('cell-miss');
+  if (isSunk)       classes.push('cell-sunk');
+  else if (isHit)   classes.push('cell-hit');
+  else if (isMiss)  classes.push('cell-miss');
   else if (hasShip) classes.push('cell-ship');
-  if (isPreview) classes.push('cell-preview-valid');
+
+  if (isPreview) {
+    classes.push(isPreviewValid ? 'cell-preview-valid' : 'cell-preview-invalid');
+  }
   if (isDisabled) classes.push('cell-disabled');
 
   return (
@@ -12,6 +15,7 @@ export default function Cell({ coordinate, hasShip, isHit, isMiss, isSunk, isPre
       className={classes.join(' ')}
       data-coordinate={coordinate}
       onClick={!isDisabled ? onClick : undefined}
+      onMouseEnter={onHover}
       role="button"
       aria-label={coordinate}
     />
