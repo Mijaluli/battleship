@@ -134,6 +134,7 @@ function fireShot(board, coordinate, shotsRemaining, shotsTaken) {
       shipName = ship.name;
     } else {
       outcome = 'hit';
+      shipName = ship.name;
     }
   } else {
     newCells[coordinate] = { ...cell, isMiss: true };
@@ -153,9 +154,53 @@ function checkAllSunk(board) {
   return board.ships.length === FLEET.length && board.ships.every(s => s.isSunk);
 }
 
-function computerPickShot(shotsRemaining) {
-  const idx = Math.floor(Math.random() * shotsRemaining.length);
-  return shotsRemaining[idx];
+function getAdjacentCoords(coord) {
+  const col = coord[0];
+  const row = parseInt(coord.slice(1), 10);
+  const colIdx = COLUMNS.indexOf(col);
+  const result = [];
+  if (colIdx > 0)               result.push(`${COLUMNS[colIdx - 1]}${row}`);
+  if (colIdx < COLUMNS.length - 1) result.push(`${COLUMNS[colIdx + 1]}${row}`);
+  if (row > 1)  result.push(`${col}${row - 1}`);
+  if (row < 10) result.push(`${col}${row + 1}`);
+  return result;
+}
+
+// Hunt mode uses a checkerboard pattern — guaranteed to intersect every ship ≥2 cells,
+// halving the expected shots needed to find the first hit.
+// Target mode fires adjacent cells when an unsunk hit exists.
+function computerPickShot(shotsRemaining, humanBoard) {
+  const remaining = new Set(shotsRemaining);
+
+  if (humanBoard) {
+    // Target mode: find cells that were hit but belong to a ship not yet sunk
+    const unsunkHits = Object.entries(humanBoard.cells)
+      .filter(([, cell]) => cell.isHit && !cell.isSunk)
+      .map(([coord]) => coord);
+
+    if (unsunkHits.length > 0) {
+      // Prefer continuing along the axis of an already-established hit line
+      const candidates = new Set();
+      for (const hit of unsunkHits) {
+        for (const adj of getAdjacentCoords(hit)) {
+          if (remaining.has(adj)) candidates.add(adj);
+        }
+      }
+      if (candidates.size > 0) {
+        const arr = [...candidates];
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+    }
+  }
+
+  // Hunt mode: checkerboard (even parity only)
+  const checkerboard = shotsRemaining.filter(coord => {
+    const colIdx = COLUMNS.indexOf(coord[0]);
+    const row = parseInt(coord.slice(1), 10);
+    return (colIdx + row) % 2 === 0;
+  });
+  const pool = checkerboard.length > 0 ? checkerboard : shotsRemaining;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function sanitizeComputerBoard(board) {

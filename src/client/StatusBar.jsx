@@ -6,10 +6,10 @@ function shotClass(outcome) {
 
 function shotLabel(shot, who) {
   if (!shot) return null;
-  const { coordinate, outcome, shipName } = shot;
-  if (outcome === 'sunk') return `${who} sunk ${shipName} at ${coordinate}!`;
-  if (outcome === 'hit')  return `${who} hit at ${coordinate}`;
-  return `${who} missed at ${coordinate}`;
+  const { outcome, shipName } = shot;
+  if (outcome === 'sunk') return `${who} sunk ${shipName}!`;
+  if (outcome === 'hit')  return shipName ? `${who} hit ${shipName}!` : `${who} hit!`;
+  return `${who} missed`;
 }
 
 export default function StatusBar({ status, lastHumanShot, lastComputerShot, onReset }) {

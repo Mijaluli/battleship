@@ -143,7 +143,7 @@ router.post('/:gameId/fire', (req, res) => {
   }
 
   // Computer fires
-  const compCoord = computerPickShot(game.computerPlayer.shotsRemaining);
+  const compCoord = computerPickShot(game.computerPlayer.shotsRemaining, game.humanPlayer.board);
   const compResult = fireShot(
     game.humanPlayer.board,
     compCoord,
