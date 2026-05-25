@@ -1,6 +1,6 @@
 # Battleship
 
-A single-player Battleship game with a Node.js/Express REST backend and a React/Vite frontend. Built entirely by orchestrated Claude Code agents under a **Level 4 Autonomy** workflow — every line of application code, every test, and every review note was produced by a role-bounded agent (Architect, QA, Backend Developer, Frontend Developer, Reviewer, Release).
+A single-player Battleship game with a Node.js/Express REST backend and a React/Vite frontend.
 
 ---
 
