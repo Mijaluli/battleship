@@ -2,6 +2,9 @@
 
 A single-player Battleship game with a Node.js/Express REST backend and a React/Vite frontend.
 
+<img width="1463" height="733" alt="Screenshot 2026-05-25 at 15 39 43" src="https://github.com/user-attachments/assets/3d70d7cb-a350-455b-b5e2-255e552cdf64" />
+<img width="1467" height="731" alt="Screenshot 2026-05-25 at 15 48 45" src="https://github.com/user-attachments/assets/9a630a9a-5c4e-48eb-8cc7-e4d419c36d8c" />
+
 ---
 
 ## Project Structure
