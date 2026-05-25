@@ -58,22 +58,8 @@ export default function ShipPlacement({ gameId, humanBoard, shipsToPlace, onShip
     setDraggingShip(null);
   }
 
-  function handleBoardDragOver(e) {
-    const coord = e.target.closest('[data-coordinate]')?.dataset.coordinate;
-    if (coord) {
-      e.preventDefault();
-      setHoverCoord(coord);
-    }
-  }
-
   function handleBoardDragLeave(e) {
     if (!e.currentTarget.contains(e.relatedTarget)) setHoverCoord(null);
-  }
-
-  function handleBoardDrop(e) {
-    e.preventDefault();
-    const coord = e.target.closest('[data-coordinate]')?.dataset.coordinate;
-    if (coord) placeShip(coord);
   }
 
   async function placeShip(coord) {
@@ -96,6 +82,7 @@ export default function ShipPlacement({ gameId, humanBoard, shipsToPlace, onShip
       });
       const data = await res.json();
       if (!res.ok) {
+        // Server error messages mirror ERROR_MESSAGES in routes/games.js — keep in sync if those change
         showError(data.error?.message || 'Placement failed.');
         return;
       }
@@ -160,9 +147,7 @@ export default function ShipPlacement({ gameId, humanBoard, shipsToPlace, onShip
           {error && <div className="placement-error">{error}</div>}
 
           <div
-            onDragOver={handleBoardDragOver}
             onDragLeave={handleBoardDragLeave}
-            onDrop={handleBoardDrop}
             onMouseLeave={() => setHoverCoord(null)}
           >
             <GameBoard
@@ -170,6 +155,8 @@ export default function ShipPlacement({ gameId, humanBoard, shipsToPlace, onShip
               mode="placement"
               onCellClick={placeShip}
               onCellHover={setHoverCoord}
+              onCellDragOver={setHoverCoord}
+              onCellDrop={placeShip}
               previewCells={preview.coords}
               previewValid={preview.valid}
               disabled={false}

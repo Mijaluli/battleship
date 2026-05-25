@@ -17,8 +17,8 @@
  * jest.mock is scoped to this file only, so other test suites are unaffected.
  */
 
-jest.mock("../../src/server/gameLogic", () => {
-  const actual = jest.requireActual("../../src/server/gameLogic");
+jest.mock("../gameLogic", () => {
+  const actual = jest.requireActual("../gameLogic");
 
   // ----- Deterministic computer-ship placement -----------------------------
   // All 5 computer ships placed inside columns A-E, rows 6-10.
@@ -73,7 +73,7 @@ jest.mock("../../src/server/gameLogic", () => {
 });
 
 const request = require('supertest');
-const app = require("../../src/server/app.js");
+const app = require("../app.js");
 
 async function createReadyGame() {
   const createRes = await request(app).post('/api/games').send({});

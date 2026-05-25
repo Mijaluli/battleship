@@ -4,7 +4,7 @@ import Cell from './Cell';
 const COLUMNS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 const ROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-export default function GameBoard({ cells, mode, onCellClick, onCellHover, previewCells = [], previewValid = true, disabled = false }) {
+export default function GameBoard({ cells, mode, onCellClick, onCellHover, onCellDragOver, onCellDrop, previewCells = [], previewValid = true, disabled = false }) {
   return (
     <div className="board-wrapper">
       <div className="board">
@@ -35,6 +35,8 @@ export default function GameBoard({ cells, mode, onCellClick, onCellHover, previ
                   isDisabled={!isClickable || alreadyFired}
                   onClick={() => onCellClick && onCellClick(coord)}
                   onHover={() => onCellHover && onCellHover(coord)}
+                  onDragOver={onCellDragOver ? () => onCellDragOver(coord) : undefined}
+                  onDrop={onCellDrop ? () => onCellDrop(coord) : undefined}
                 />
               );
             })}

@@ -2,7 +2,7 @@ services:
   - type: web
     name: battleship-api
     runtime: node
-    rootDir: src/server
+    rootDir: server
     buildCommand: npm install
     startCommand: node index.js
     envVars:

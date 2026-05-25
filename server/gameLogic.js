@@ -71,7 +71,7 @@ function placeShip(board, shipName, startCoord, orientation) {
     if (board.cells[coord].hasShip) return { ok: false, errorCode: 'OVERLAP' };
   }
 
-  const shipId = `ship_${shipName.toLowerCase().replace(' ', '_')}_human_${uuidv4().slice(0, 8)}`;
+  const shipId = `ship_${shipName.toLowerCase().replaceAll(' ', '_')}_human_${uuidv4().slice(0, 8)}`;
   const newCells = { ...board.cells };
   for (const coord of coords) {
     newCells[coord] = { ...newCells[coord], hasShip: true, shipId };
@@ -106,7 +106,7 @@ function placeShipForComputer(board, shipDef, startCoord, orientation) {
   for (const coord of coords) {
     if (board.cells[coord].hasShip) return { ok: false };
   }
-  const shipId = `ship_${shipDef.name.toLowerCase().replace(' ', '_')}_computer_${uuidv4().slice(0, 8)}`;
+  const shipId = `ship_${shipDef.name.toLowerCase().replaceAll(' ', '_')}_computer_${uuidv4().slice(0, 8)}`;
   const newCells = { ...board.cells };
   for (const coord of coords) {
     newCells[coord] = { ...newCells[coord], hasShip: true, shipId };
@@ -134,7 +134,7 @@ function fireShot(board, coordinate, shotsRemaining, shotsTaken) {
       shipName = ship.name;
     } else {
       outcome = 'hit';
-      shipName = ship.name;
+      // shipName intentionally null on plain hit — only revealed on 'sunk'
     }
   } else {
     newCells[coordinate] = { ...cell, isMiss: true };
@@ -179,13 +179,40 @@ function computerPickShot(shotsRemaining, humanBoard) {
       .map(([coord]) => coord);
 
     if (unsunkHits.length > 0) {
-      // Prefer continuing along the axis of an already-established hit line
       const candidates = new Set();
-      for (const hit of unsunkHits) {
-        for (const adj of getAdjacentCoords(hit)) {
-          if (remaining.has(adj)) candidates.add(adj);
+
+      if (unsunkHits.length >= 2) {
+        const hitRows = new Set(unsunkHits.map(c => parseInt(c.slice(1), 10)));
+        const hitCols = new Set(unsunkHits.map(c => c[0]));
+
+        if (hitRows.size === 1) {
+          // Horizontal axis established — extend left/right only
+          const row = [...hitRows][0];
+          const colIdxs = unsunkHits.map(c => COLUMNS.indexOf(c[0])).sort((a, b) => a - b);
+          const lo = colIdxs[0];
+          const hi = colIdxs[colIdxs.length - 1];
+          if (lo > 0) { const c = `${COLUMNS[lo - 1]}${row}`; if (remaining.has(c)) candidates.add(c); }
+          if (hi < COLUMNS.length - 1) { const c = `${COLUMNS[hi + 1]}${row}`; if (remaining.has(c)) candidates.add(c); }
+        } else if (hitCols.size === 1) {
+          // Vertical axis established — extend up/down only
+          const col = [...hitCols][0];
+          const rows = unsunkHits.map(c => parseInt(c.slice(1), 10)).sort((a, b) => a - b);
+          const lo = rows[0];
+          const hi = rows[rows.length - 1];
+          if (lo > 1)  { const c = `${col}${lo - 1}`; if (remaining.has(c)) candidates.add(c); }
+          if (hi < 10) { const c = `${col}${hi + 1}`; if (remaining.has(c)) candidates.add(c); }
         }
       }
+
+      // Fall back to all adjacent (single hit or ambiguous axis)
+      if (candidates.size === 0) {
+        for (const hit of unsunkHits) {
+          for (const adj of getAdjacentCoords(hit)) {
+            if (remaining.has(adj)) candidates.add(adj);
+          }
+        }
+      }
+
       if (candidates.size > 0) {
         const arr = [...candidates];
         return arr[Math.floor(Math.random() * arr.length)];
@@ -210,12 +237,15 @@ function sanitizeComputerBoard(board) {
     if (cell.hasShip && !sunkCoords.has(coord)) {
       newCells[coord] = { ...cell, hasShip: false, shipId: null };
     } else if (sunkCoords.has(coord)) {
-      newCells[coord] = { ...cell, hasShip: false, shipId: null, isSunk: true };
+      newCells[coord] = { ...cell, hasShip: false, shipId: null, isSunk: true, isHit: true };
     } else {
       newCells[coord] = { ...cell };
     }
   }
-  return { cells: newCells, ships: board.ships };
+  return {
+    cells: newCells,
+    ships: board.ships.filter(s => s.isSunk).map(s => ({ ...s })),
+  };
 }
 
 module.exports = {

@@ -1,19 +1,19 @@
 /**
  * Frontend component behavioral tests — derived from SPEC.md sections 7 and 3.
  *
- * These tests import React components from ../../src/client/.
+ * These tests import React components from ../.
  * Until those files are implemented, the test suite will fail at the import
- * stage with "Cannot find module '../../src/client/...'" — the correct red state.
+ * stage with "Cannot find module '../...'" — the correct red state.
  */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 
-import GameBoard from '../../src/client/GameBoard';
-import Cell from '../../src/client/Cell';
-import ShipPlacement from '../../src/client/ShipPlacement';
-import StatusBar from '../../src/client/StatusBar';
-import ScoreBoard from '../../src/client/ScoreBoard';
+import GameBoard from '../GameBoard';
+import Cell from '../Cell';
+import ShipPlacement from '../ShipPlacement';
+import StatusBar from '../StatusBar';
+import ScoreBoard from '../ScoreBoard';
 
 // ---------------------------------------------------------------------------
 // Test data helpers
@@ -288,11 +288,9 @@ describe('ShipPlacement', () => {
       />
     );
 
-    expect(screen.getByText(/Carrier/i)).toBeInTheDocument();
-    expect(screen.getByText(/Battleship/i)).toBeInTheDocument();
-    expect(screen.getByText(/Destroyer/i)).toBeInTheDocument();
-    expect(screen.getByText(/Submarine/i)).toBeInTheDocument();
-    expect(screen.getByText(/Patrol Boat/i)).toBeInTheDocument();
+    FULL_FLEET.forEach((ship) => {
+      expect(screen.getAllByText(new RegExp(ship.name, 'i')).length).toBeGreaterThanOrEqual(1);
+    });
   });
 
   test('renders an orientation selector with horizontal option', () => {
@@ -309,7 +307,7 @@ describe('ShipPlacement', () => {
     expect(screen.getByText(/horizontal/i)).toBeInTheDocument();
   });
 
-  test('renders an orientation selector with vertical option', () => {
+  test('renders an orientation selector that can toggle to vertical', () => {
     render(
       <ShipPlacement
         gameId="game_test_123"
@@ -319,6 +317,9 @@ describe('ShipPlacement', () => {
       />
     );
 
+    const btn = screen.getByRole('button', { name: /horizontal|vertical/i });
+    expect(btn).toBeInTheDocument();
+    fireEvent.click(btn);
     expect(screen.getByText(/vertical/i)).toBeInTheDocument();
   });
 
@@ -374,12 +375,12 @@ describe('StatusBar', () => {
     expect(screen.getByText(/your turn/i)).toBeInTheDocument();
   });
 
-  test('does NOT say "Your turn" when currentTurn is "computer"', () => {
+  test('does NOT say "Your turn" during the placement phase', () => {
     render(
       <StatusBar
-        status="in_progress"
-        currentTurn="computer"
-        lastShotResult={null}
+        status="placement"
+        lastHumanShot={null}
+        lastComputerShot={null}
         onReset={() => {}}
       />
     );
@@ -451,13 +452,12 @@ describe('StatusBar', () => {
     render(
       <StatusBar
         status="in_progress"
-        currentTurn="human"
-        lastShotResult={{ shooter: 'human', coordinate: 'C5', outcome: 'hit', shipName: null }}
+        lastHumanShot={{ coordinate: 'C5', outcome: 'hit', shipName: null }}
+        lastComputerShot={null}
         onReset={() => {}}
       />
     );
 
-    // The outcome "hit" or the coordinate C5 should be visible
     const hitText = screen.queryByText(/hit/i);
     expect(hitText).toBeInTheDocument();
   });
@@ -466,8 +466,8 @@ describe('StatusBar', () => {
     render(
       <StatusBar
         status="in_progress"
-        currentTurn="human"
-        lastShotResult={{ shooter: 'human', coordinate: 'D3', outcome: 'sunk', shipName: 'Destroyer' }}
+        lastHumanShot={{ coordinate: 'D3', outcome: 'sunk', shipName: 'Destroyer' }}
+        lastComputerShot={null}
         onReset={() => {}}
       />
     );
@@ -483,42 +483,40 @@ describe('ScoreBoard', () => {
   test('shows all 5 ship names for the human side', () => {
     render(
       <ScoreBoard
+        side="own"
+        ships={FULL_FLEET}
         sunkShips={{ human: [], computer: [] }}
-        fleet={FULL_FLEET}
       />
     );
 
     FULL_FLEET.forEach((ship) => {
-      // Each ship name should appear at least once (could appear twice for both sides)
-      const shipElements = screen.getAllByText(new RegExp(ship.name, 'i'));
-      expect(shipElements.length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText(new RegExp(ship.name, 'i')).length).toBeGreaterThanOrEqual(1);
     });
   });
 
   test('shows all 5 ship names for the computer side', () => {
     render(
       <ScoreBoard
+        side="enemy"
+        ships={FULL_FLEET}
         sunkShips={{ human: [], computer: [] }}
-        fleet={FULL_FLEET}
       />
     );
 
-    // The board shows ships for both players — at least 2 occurrences of each name
     FULL_FLEET.forEach((ship) => {
-      const shipElements = screen.getAllByText(new RegExp(ship.name, 'i'));
-      expect(shipElements.length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText(new RegExp(ship.name, 'i')).length).toBeGreaterThanOrEqual(1);
     });
   });
 
   test('marks sunk ships visually with a sunk CSS class or indicator', () => {
     render(
       <ScoreBoard
-        sunkShips={{ human: ['Patrol Boat'], computer: ['Destroyer'] }}
-        fleet={FULL_FLEET}
+        side="own"
+        ships={FULL_FLEET}
+        sunkShips={{ human: ['Patrol Boat'], computer: [] }}
       />
     );
 
-    // At least one element with a "sunk" class should be present in the DOM
     const sunkIndicators = document.querySelectorAll('.sunk, [data-sunk="true"], [class*="sunk"]');
     expect(sunkIndicators.length).toBeGreaterThan(0);
   });
@@ -526,26 +524,26 @@ describe('ScoreBoard', () => {
   test('afloat ships are not marked as sunk', () => {
     const { container } = render(
       <ScoreBoard
+        side="own"
+        ships={FULL_FLEET}
         sunkShips={{ human: [], computer: [] }}
-        fleet={FULL_FLEET}
       />
     );
 
-    // When no ships are sunk, there should be no sunk markers
     const sunkIndicators = container.querySelectorAll('.sunk, [data-sunk="true"], [class*="sunk"]');
     expect(sunkIndicators.length).toBe(0);
   });
 
   test('correctly marks only the sunk ships, not the afloat ones', () => {
-    render(
+    const { container } = render(
       <ScoreBoard
+        side="own"
+        ships={FULL_FLEET}
         sunkShips={{ human: ['Carrier'], computer: [] }}
-        fleet={FULL_FLEET}
       />
     );
 
-    // Exactly one sunk marker for the human Carrier
-    const sunkIndicators = document.querySelectorAll('.sunk, [data-sunk="true"], [class*="sunk"]');
+    const sunkIndicators = container.querySelectorAll('.sunk, [data-sunk="true"], [class*="sunk"]');
     expect(sunkIndicators.length).toBe(1);
   });
 });

@@ -1,6 +1,6 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { games } = require('../gameStore');
+const { games, addGame } = require('../gameStore');
 const {
   FLEET,
   getAllCoordinates,
@@ -61,7 +61,7 @@ function createFreshGame(gameId) {
 router.post('/', (req, res) => {
   const gameId = `game_${uuidv4().slice(0, 8)}`;
   const game = createFreshGame(gameId);
-  games.set(gameId, game);
+  addGame(gameId, game);
   res.status(201).json({
     gameId,
     status: game.status,
@@ -144,6 +144,10 @@ router.post('/:gameId/fire', (req, res) => {
 
   // Computer fires
   const compCoord = computerPickShot(game.computerPlayer.shotsRemaining, game.humanPlayer.board);
+  if (!compCoord) {
+    games.set(game.id, game);
+    return res.status(500).json({ error: { code: 'NO_SHOTS_REMAINING', message: 'No valid computer moves remaining.' } });
+  }
   const compResult = fireShot(
     game.humanPlayer.board,
     compCoord,

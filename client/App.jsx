@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ShipPlacement from './ShipPlacement';
 import GameBoard from './GameBoard';
 import StatusBar from './StatusBar';
@@ -74,8 +74,10 @@ export default function App() {
     }));
   }
 
+  const isFiringRef = useRef(false);
   async function handleFire(coordinate) {
-    if (!game || game.status !== 'in_progress' || isLoading) return;
+    if (!game || game.status !== 'in_progress' || isFiringRef.current) return;
+    isFiringRef.current = true;
     setIsLoading(true);
     try {
       const res = await fetch(`/api/games/${game.gameId}/fire`, {
@@ -91,14 +93,14 @@ export default function App() {
         winner: data.winner,
         humanBoard: data.humanBoard,
         computerBoard: data.computerBoard,
-        sunkShips: data.sunkShips,
+        sunkShips: data.sunkShips ?? prev.sunkShips,
         lastHumanShot: data.humanShot ?? prev.lastHumanShot,
-        lastComputerShot: data.computerShot ?? prev.lastComputerShot,
-        currentTurn: data.status === 'in_progress' ? 'human' : null,
+        lastComputerShot: data.status === 'player_won' ? null : (data.computerShot ?? prev.lastComputerShot),
       }));
     } catch {
       // silent — user can retry by clicking again
     } finally {
+      isFiringRef.current = false;
       setIsLoading(false);
     }
   }
@@ -149,24 +151,29 @@ export default function App() {
 
         {inBattle && (
           <div className="battle-view">
-            <ScoreBoard sunkShips={game.sunkShips} fleet={game.fleet} />
             <div className="boards-row">
               <div className="board-section">
-                <div className="board-label">Your Fleet</div>
-                <GameBoard
-                  cells={game.humanBoard.cells}
-                  mode="battle-own"
-                  disabled
-                />
+                <ScoreBoard side="own" ships={game.fleet} sunkShips={game.sunkShips} />
+                <div className="board-wrap">
+                  <div className="board-label">Your Fleet</div>
+                  <GameBoard
+                    cells={game.humanBoard.cells}
+                    mode="battle-own"
+                    disabled
+                  />
+                </div>
               </div>
               <div className="board-section">
-                <div className="board-label">Enemy Waters</div>
-                <GameBoard
-                  cells={game.computerBoard?.cells || {}}
-                  mode="battle-enemy"
-                  onCellClick={handleFire}
-                  disabled={isLoading || game.status !== 'in_progress'}
-                />
+                <div className="board-wrap">
+                  <div className="board-label">Enemy Waters</div>
+                  <GameBoard
+                    cells={game.computerBoard?.cells || {}}
+                    mode="battle-enemy"
+                    onCellClick={handleFire}
+                    disabled={isLoading || game.status !== 'in_progress'}
+                  />
+                </div>
+                <ScoreBoard side="enemy" ships={game.fleet} sunkShips={game.sunkShips} />
               </div>
             </div>
           </div>

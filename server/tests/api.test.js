@@ -3,13 +3,13 @@
 /**
  * Backend API contract tests — derived from SPEC.md section 6.
  *
- * These tests import the Express app from ../../src/server/app.js.
+ * These tests import the Express app from ../app.js.
  * Until that file is implemented the entire suite will fail with
- * "Cannot find module '../../src/server/app.js'" — the correct red state.
+ * "Cannot find module '../app.js'" — the correct red state.
  */
 
 const request = require('supertest');
-const app = require('../../src/server/app.js');
+const app = require('../app.js');
 
 // ---------------------------------------------------------------------------
 // Helper: extract just the cells map from a board response object
