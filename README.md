@@ -8,17 +8,28 @@ A single-player Battleship game with a Node.js/Express REST backend and a React/
 
 ```
 battleship/
-├── client/              # React/Vite frontend
-│   ├── tests/           # Vitest + Testing Library tests
+├── client/                  # React/Vite frontend
+│   ├── src/App.jsx          # Main game component (state, API calls)
+│   ├── src/ShipPlacement    # Drag-and-drop ship placement UI
+│   ├── src/GameBoard        # 10×10 grid rendering
+│   ├── src/ScoreBoard       # Fleet health tracker (per side)
+│   ├── src/StatusBar        # Game status + last shot results
+│   ├── src/styles.css       # Dark theme, grid layout, animations
+│   ├── tests/               # Vitest + Testing Library (29 tests)
 │   └── vitest.config.js
-├── server/              # Node.js/Express backend
-│   └── tests/           # Jest + supertest tests
+├── server/                  # Node.js/Express backend (stateless, in-memory)
+│   ├── index.js             # Express server entry
+│   ├── app.js               # Express app (CORS, middleware, routes)
+│   ├── gameLogic.js         # Pure game rules (placement, firing, AI)
+│   ├── gameStore.js         # In-memory game Map (1000-game FIFO cap)
+│   ├── routes/games.js      # REST endpoints (/api/games/*)
+│   └── tests/               # Jest + supertest (68 tests)
 ├── netlify/
-│   └── functions/api.js # Serverless wrapper (serverless-http → Express)
-├── netlify.toml         # Netlify build + redirect config
-├── render.yaml          # Render.com standalone API config
-├── SPEC.md              # API contract and game rules (source of truth)
-└── CLAUDE.md            # Architecture and dev commands for Claude Code
+│   └── functions/api.js     # Serverless wrapper (serverless-http → Express)
+├── netlify.toml             # Netlify build + redirect config
+├── render.yaml              # Render.com standalone API config
+├── SPEC.md                  # API contract and game rules (source of truth)
+└── CLAUDE.md                # Architecture and dev commands for Claude Code
 ```
 
 ---
