@@ -227,6 +227,35 @@ describe('POST /api/games/:gameId/place-ship — Place Ship', () => {
     });
   });
 
+  // ---- error: TOO_CLOSE --------------------------------------------------
+  describe('error: TOO_CLOSE', () => {
+    let gameId3b;
+    let res;
+
+    beforeAll(async () => {
+      const createRes = await request(app).post('/api/games').send({});
+      gameId3b = createRes.body.gameId;
+
+      // Place Carrier at A1 horizontal (occupies A1–E1)
+      await request(app)
+        .post(`/api/games/${gameId3b}/place-ship`)
+        .send({ shipName: 'Carrier', startCoordinate: 'A1', orientation: 'horizontal' });
+
+      // Place Battleship at A2 — directly adjacent (within 1-cell buffer of Carrier)
+      res = await request(app)
+        .post(`/api/games/${gameId3b}/place-ship`)
+        .send({ shipName: 'Battleship', startCoordinate: 'A2', orientation: 'horizontal' });
+    });
+
+    test('returns HTTP 400', () => {
+      expect(res.status).toBe(400);
+    });
+
+    test('error code is TOO_CLOSE', () => {
+      expect(res.body.error.code).toBe('TOO_CLOSE');
+    });
+  });
+
   // ---- error: INVALID_SHIP_NAME ------------------------------------------
   describe('error: INVALID_SHIP_NAME', () => {
     let gameId4;
@@ -276,16 +305,16 @@ describe('POST /api/games/:gameId/place-ship — Place Ship', () => {
         .send({ shipName: 'Carrier', startCoordinate: 'A1', orientation: 'horizontal' });
       await request(app)
         .post(`/api/games/${gameId5}/place-ship`)
-        .send({ shipName: 'Battleship', startCoordinate: 'A2', orientation: 'horizontal' });
+        .send({ shipName: 'Battleship', startCoordinate: 'A3', orientation: 'horizontal' });
       await request(app)
         .post(`/api/games/${gameId5}/place-ship`)
-        .send({ shipName: 'Destroyer', startCoordinate: 'A3', orientation: 'horizontal' });
+        .send({ shipName: 'Destroyer', startCoordinate: 'A5', orientation: 'horizontal' });
       await request(app)
         .post(`/api/games/${gameId5}/place-ship`)
-        .send({ shipName: 'Submarine', startCoordinate: 'A4', orientation: 'horizontal' });
+        .send({ shipName: 'Submarine', startCoordinate: 'A7', orientation: 'horizontal' });
       res = await request(app)
         .post(`/api/games/${gameId5}/place-ship`)
-        .send({ shipName: 'Patrol Boat', startCoordinate: 'A5', orientation: 'horizontal' });
+        .send({ shipName: 'Patrol Boat', startCoordinate: 'A9', orientation: 'horizontal' });
     });
 
     test('returns HTTP 200', () => {
@@ -316,16 +345,16 @@ describe('POST /api/games/:gameId/fire — Fire Shot', () => {
       .send({ shipName: 'Carrier', startCoordinate: 'A1', orientation: 'horizontal' });
     await request(app)
       .post(`/api/games/${gId}/place-ship`)
-      .send({ shipName: 'Battleship', startCoordinate: 'A2', orientation: 'horizontal' });
+      .send({ shipName: 'Battleship', startCoordinate: 'A3', orientation: 'horizontal' });
     await request(app)
       .post(`/api/games/${gId}/place-ship`)
-      .send({ shipName: 'Destroyer', startCoordinate: 'A3', orientation: 'horizontal' });
+      .send({ shipName: 'Destroyer', startCoordinate: 'A5', orientation: 'horizontal' });
     await request(app)
       .post(`/api/games/${gId}/place-ship`)
-      .send({ shipName: 'Submarine', startCoordinate: 'A4', orientation: 'horizontal' });
+      .send({ shipName: 'Submarine', startCoordinate: 'A7', orientation: 'horizontal' });
     await request(app)
       .post(`/api/games/${gId}/place-ship`)
-      .send({ shipName: 'Patrol Boat', startCoordinate: 'A5', orientation: 'horizontal' });
+      .send({ shipName: 'Patrol Boat', startCoordinate: 'A9', orientation: 'horizontal' });
 
     return gId;
   }

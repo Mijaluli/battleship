@@ -79,22 +79,22 @@ async function createReadyGame() {
   const createRes = await request(app).post('/api/games').send({});
   const gId = createRes.body.gameId;
 
-  // All human ships occupy rows 1-5 only, columns A-E.
+  // Human ships in odd rows 1-9, columns A-E (1-cell gap between each).
   await request(app)
     .post(`/api/games/${gId}/place-ship`)
     .send({ shipName: 'Carrier', startCoordinate: 'A1', orientation: 'horizontal' });
   await request(app)
     .post(`/api/games/${gId}/place-ship`)
-    .send({ shipName: 'Battleship', startCoordinate: 'A2', orientation: 'horizontal' });
+    .send({ shipName: 'Battleship', startCoordinate: 'A3', orientation: 'horizontal' });
   await request(app)
     .post(`/api/games/${gId}/place-ship`)
-    .send({ shipName: 'Destroyer', startCoordinate: 'A3', orientation: 'horizontal' });
+    .send({ shipName: 'Destroyer', startCoordinate: 'A5', orientation: 'horizontal' });
   await request(app)
     .post(`/api/games/${gId}/place-ship`)
-    .send({ shipName: 'Submarine', startCoordinate: 'A4', orientation: 'horizontal' });
+    .send({ shipName: 'Submarine', startCoordinate: 'A7', orientation: 'horizontal' });
   await request(app)
     .post(`/api/games/${gId}/place-ship`)
-    .send({ shipName: 'Patrol Boat', startCoordinate: 'A5', orientation: 'horizontal' });
+    .send({ shipName: 'Patrol Boat', startCoordinate: 'A9', orientation: 'horizontal' });
 
   return gId;
 }

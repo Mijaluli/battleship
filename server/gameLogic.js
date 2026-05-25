@@ -70,6 +70,9 @@ function placeShip(board, shipName, startCoord, orientation) {
   for (const coord of coords) {
     if (board.cells[coord].hasShip) return { ok: false, errorCode: 'OVERLAP' };
   }
+  for (const coord of getBufferCoords(coords)) {
+    if (board.cells[coord].hasShip) return { ok: false, errorCode: 'TOO_CLOSE' };
+  }
 
   const shipId = `ship_${shipName.toLowerCase().replaceAll(' ', '_')}_human_${uuidv4().slice(0, 8)}`;
   const newCells = { ...board.cells };
@@ -104,6 +107,9 @@ function placeShipForComputer(board, shipDef, startCoord, orientation) {
   const coords = getShipCoordinates(startCoord, orientation, shipDef.size);
   if (!coords) return { ok: false };
   for (const coord of coords) {
+    if (board.cells[coord].hasShip) return { ok: false };
+  }
+  for (const coord of getBufferCoords(coords)) {
     if (board.cells[coord].hasShip) return { ok: false };
   }
   const shipId = `ship_${shipDef.name.toLowerCase().replaceAll(' ', '_')}_computer_${uuidv4().slice(0, 8)}`;
@@ -152,6 +158,27 @@ function fireShot(board, coordinate, shotsRemaining, shotsTaken) {
 
 function checkAllSunk(board) {
   return board.ships.length === FLEET.length && board.ships.every(s => s.isSunk);
+}
+
+function getBufferCoords(shipCoords) {
+  const coordSet = new Set(shipCoords);
+  const buffer = new Set();
+  for (const coord of shipCoords) {
+    const colIdx = COLUMNS.indexOf(coord[0]);
+    const row = parseInt(coord.slice(1), 10);
+    for (let dc = -1; dc <= 1; dc++) {
+      for (let dr = -1; dr <= 1; dr++) {
+        if (dc === 0 && dr === 0) continue;
+        const ni = colIdx + dc;
+        const nr = row + dr;
+        if (ni >= 0 && ni < COLUMNS.length && nr >= 1 && nr <= 10) {
+          const nc = `${COLUMNS[ni]}${nr}`;
+          if (!coordSet.has(nc)) buffer.add(nc);
+        }
+      }
+    }
+  }
+  return [...buffer];
 }
 
 function getAdjacentCoords(coord) {

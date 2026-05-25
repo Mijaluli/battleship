@@ -28,8 +28,24 @@ function computePreview(startCoord, orientation, size, cells) {
       coords.push(`${col}${newRow}`);
     }
   }
-  const valid = coords.every(c => cells[c] && !cells[c].hasShip);
-  return { coords, valid };
+  if (!coords.every(c => cells[c] && !cells[c].hasShip)) return { coords, valid: false };
+
+  // Enforce 1-cell gap: none of the 8-surrounding cells may contain a ship
+  const coordSet = new Set(coords);
+  for (const coord of coords) {
+    const ci = COLUMNS.indexOf(coord[0]);
+    const r = parseInt(coord.slice(1), 10);
+    for (let dc = -1; dc <= 1; dc++) {
+      for (let dr = -1; dr <= 1; dr++) {
+        if (dc === 0 && dr === 0) continue;
+        const ni = ci + dc; const nr = r + dr;
+        if (ni < 0 || ni >= COLUMNS.length || nr < 1 || nr > 10) continue;
+        const nc = `${COLUMNS[ni]}${nr}`;
+        if (!coordSet.has(nc) && cells[nc]?.hasShip) return { coords, valid: false };
+      }
+    }
+  }
+  return { coords, valid: true };
 }
 
 export default function ShipPlacement({ gameId, humanBoard, shipsToPlace, onShipPlaced }) {
