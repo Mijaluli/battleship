@@ -19,7 +19,6 @@ const router = express.Router();
 const ERROR_MESSAGES = {
   OUT_OF_BOUNDS: 'Ship placement is out of bounds',
   OVERLAP: 'Ship overlaps with another ship',
-  TOO_CLOSE: 'Ships must have at least one cell gap between them',
   INVALID_COORDINATE: 'Invalid coordinate',
   INVALID_SHIP_NAME: 'Invalid ship name',
   INVALID_ORIENTATION: 'Invalid orientation',

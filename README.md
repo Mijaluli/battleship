@@ -76,5 +76,5 @@ cd client && npm test   # Vitest + Testing Library
   | Submarine | 3 |
   | Patrol Boat | 2 |
 
-- Human places ships manually; computer places at random. Ships must have at least one cell gap between them (no touching, including diagonals). Players alternate shots. First to sink all five enemy ships wins.
+- Human places ships manually; computer places at random. Players alternate shots. First to sink all five enemy ships wins.
 - Full API contract in `SPEC.md`.
